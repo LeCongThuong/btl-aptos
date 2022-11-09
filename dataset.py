@@ -13,13 +13,13 @@ def get_augment(img_size):
                 transforms.RandomAffine(degrees=180, scale=(0.01, 0.2), shear=0.2, translate=(0.2, 0.2)),
                 transforms.RandomHorizontalFlip(p=0.5),
                 transforms.RandomVerticalFlip(p=0.5),
-                transforms.Resize(img_size),
+                transforms.Resize([img_size, img_size]),
                 transforms.ToTensor(),
                 transforms.Normalize([0.485, 0.456, 0.406],
                                      [0.229, 0.224, 0.225])
                 ]),
         'val': transforms.Compose([
-                transforms.Resize(img_size),
+                transforms.Resize([img_size, img_size]),
                 transforms.ToTensor(),
                 transforms.Normalize([0.485, 0.456, 0.406],
                                      [0.229, 0.224, 0.225])
@@ -57,10 +57,12 @@ def get_dataloaders(train_df_path, val_df_path, img_size, batch_size):
                                                batch_size=batch_size,
                                                shuffle=True,
                                                num_workers=12,
-                                               drop_last=True)
+                                               drop_last=True
+                                               )
     val_loader = torch.utils.data.DataLoader(val_dataset,
                                               batch_size=batch_size,
                                               shuffle=False,
                                               num_workers=12,
-                                              drop_last=False)
+                                              drop_last=False
+                                             )
     return train_loader, val_loader

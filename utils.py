@@ -2,7 +2,7 @@ import torch
 import os
 import numpy as np
 import random
-
+from pathlib import Path
 
 def seed_everything(seed):
     random.seed(seed)
@@ -37,27 +37,21 @@ class AverageMeter:
         self.avg = self.sum / self.count
 
 
-def make_one_hot(labels, C=2):
-    '''
-    Converts an integer label torch.autograd.Variable to a one-hot Variable.
+def save_checkpoint(checkpoints_dir, name, model, optimizer, scheduler, epoch, loss):
+    checkpoint_path = Path(checkpoints_dir)/f"{name}.pt"
+    torch.save({
+        'epoch': epoch,
+        'model_state_dict': model.state_dict(),
+        'optimizer_state_dict': optimizer.state_dict(),
+        'scheduler_state_dict': scheduler.state_dict(),
+        'loss': loss,
+    }, checkpoint_path)
 
-    Parameters
-    ----------
-    labels : torch.autograd.Variable of torch.cuda.LongTensor
-        N x 1 x H x W, where N is batch size.
-        Each value is an integer representing correct classification.
-    C : integer.
-        number of classes in labels.
 
-    Returns
-    -------
-    target : torch.autograd.Variable of torch.cuda.FloatTensor
-        N x C x H x W, where C is class number. One-hot encoded.
-    '''
-    one_hot = torch.cuda.FloatTensor(labels.size(0), C, labels.size(2), labels.size(3)).zero_()
-    target = one_hot.scatter_(1, labels.data, 1)
-
-    target = Variable(target)
-
-    return target
-    
+def load_checkpoint(checkpoints_dir, name, model, optimizer, scheduler):
+    checkpoint_path = Path(checkpoints_dir) / f"{name}.pt"
+    checkpoint = torch.load(str(checkpoint_path))
+    model.load_state_dict(checkpoint['model_state_dict'])
+    optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+    scheduler.load_state_dict(checkpoint['scheduler_state_dict'])
+    return model, optimizer, scheduler
