@@ -3,5 +3,9 @@ from dataclasses import dataclass
 
 @dataclass
 class Config:
-    data_dir: str = './data'
-
+    train_path: str = './data/train.csv'
+    val_path: str = './data/val.csv'
+    epochs: int = 60
+    lr: float = 0.0002
+    img_size: int = 512
+    batch_size: int = 8
