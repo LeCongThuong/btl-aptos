@@ -48,10 +48,12 @@ def save_checkpoint(checkpoints_dir, name, model, optimizer, scheduler, epoch, l
     }, checkpoint_path)
 
 
-def load_checkpoint(checkpoints_dir, name, model, optimizer, scheduler):
+def load_checkpoint(checkpoints_dir, name, model, optimizer=None, scheduler=None):
     checkpoint_path = Path(checkpoints_dir) / f"{name}.pt"
     checkpoint = torch.load(str(checkpoint_path))
     model.load_state_dict(checkpoint['model_state_dict'])
-    optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
-    scheduler.load_state_dict(checkpoint['scheduler_state_dict'])
+    if optimizer is not None:
+        optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+    if scheduler is not None:
+        scheduler.load_state_dict(checkpoint['scheduler_state_dict'])
     return model, optimizer, scheduler

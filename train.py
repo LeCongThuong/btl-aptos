@@ -6,7 +6,7 @@ import torch.nn as nn
 import torch.optim as optim
 from model import APTOSModel
 from config import Config
-from utils import seed_everything, save_checkpoint, load_checkpoint
+from utils import seed_everything, save_checkpoint
 from dataset import get_dataloaders
 import torch.optim.lr_scheduler
 

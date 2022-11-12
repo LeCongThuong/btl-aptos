@@ -2,6 +2,7 @@ import timm
 import torch.nn.functional as F
 import torch.nn as nn
 import torch
+from torchinfo import summary
 
 
 class GeM(nn.Module):
@@ -37,6 +38,7 @@ class APTOSModel(nn.Module):
 
 if __name__ == '__main__':
     model = APTOSModel()
-    img = torch.ones(1, 3, 224, 224)
-    out = model(img)
-    print(out.shape)
+    # img = torch.ones(1, 3, 224, 224)
+    # out = model(img)
+    # print(out.shape)
+    summary(model, input_size=(16, 3, 224, 224))

@@ -66,3 +66,5 @@ def get_dataloaders(train_df_path, val_df_path, img_size, batch_size):
                                               drop_last=False
                                              )
     return train_loader, val_loader
+
+from pytorch_grad_cam import GradCAM
