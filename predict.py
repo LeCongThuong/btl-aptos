@@ -23,7 +23,7 @@ def predict(val_loader, model):
 
 def run():
     checkpoint_dir = "logs/checkpoints"
-    name = '59'
+    name = 'best_model'
     model = APTOSModel()
     model, _, _ = load_checkpoint(checkpoint_dir, name, model)
     model.cuda()

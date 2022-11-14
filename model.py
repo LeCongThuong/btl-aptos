@@ -15,7 +15,7 @@ class GeM(nn.Module):
         return self.gem(x, p=self.p, eps=self.eps)
 
     def gem(self, x, p=3, eps=1e-6):
-        return F.avg_pool2d(x.clamp(min=eps).pow(p), (x.size(-2), x.size(-1))).pow(1. / p)
+        return F.avg_pool2d(x.clamp(min=eps).pow(p), (x.size(-2), x.size(-1))).pow(1. / p).view(x.shape[0], -1)
 
     def __repr__(self):
         return self.__class__.__name__ + '(' + 'p=' + '{:.4f}'.format(self.p.data.tolist()[0]) + ', ' + 'eps=' + str(
@@ -25,15 +25,11 @@ class GeM(nn.Module):
 class APTOSModel(nn.Module):
     def __init__(self):
         super(APTOSModel, self).__init__()
-        self.backbone = timm.create_model('inception_resnet_v2', pretrained=True, num_classes=5)
-        self.pooling = GeM()
-        self.linear_fn = nn.Linear(self.backbone.classif.in_features, 5)
+        self.model = timm.create_model('inception_resnet_v2', pretrained=True, num_classes=1)
+        self.model.global_pool = GeM()
 
     def forward(self, img):
-        out = self.backbone.forward_features(img)
-        out = self.pooling(out)
-        out = self.linear_fn(out.view(out.size(0), -1))
-        return out
+        return self.model(img)
 
 
 if __name__ == '__main__':

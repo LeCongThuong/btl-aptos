@@ -37,14 +37,13 @@ class AverageMeter:
         self.avg = self.sum / self.count
 
 
-def save_checkpoint(checkpoints_dir, name, model, optimizer, scheduler, epoch, loss):
+def save_checkpoint(checkpoints_dir, name, model, optimizer, scheduler, epoch):
     checkpoint_path = Path(checkpoints_dir)/f"{name}.pt"
     torch.save({
         'epoch': epoch,
         'model_state_dict': model.state_dict(),
         'optimizer_state_dict': optimizer.state_dict(),
         'scheduler_state_dict': scheduler.state_dict(),
-        'loss': loss,
     }, checkpoint_path)
 
 
