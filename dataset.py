@@ -3,22 +3,29 @@ from torch.utils.data import Dataset
 from PIL import Image
 import torchvision.transforms as transforms
 import pandas as pd
+import numpy as np
+import albumentations as A
+from albumentations.pytorch import ToTensorV2
+import cv2
 
 
 def get_augment(img_size):
     img_aug = {
-        'train': transforms.Compose([
-                transforms.ColorJitter(brightness=20, contrast=0.2, saturation=20., hue=[-0.5, 0.5]),
-                transforms.RandomAdjustSharpness(sharpness_factor=2, p=0.5),
-                transforms.RandomAffine(degrees=180, scale=(0.01, 0.2), shear=0.2, translate=(0.2, 0.2)),
-                transforms.RandomHorizontalFlip(p=0.5),
-                transforms.RandomVerticalFlip(p=0.5),
-                transforms.Resize([img_size, img_size]),
-                transforms.ToTensor()
-                ]),
-        'val': transforms.Compose([
-                transforms.Resize([img_size, img_size]),
-                transforms.ToTensor()
+        'train':A.Compose([
+                        A.RandomContrast(limit=0.2),
+                        A.RandomBrightness(limit=20),
+                        A.HueSaturationValue(hue_shift_limit=10, sat_shift_limit=20),
+                        A.UnsharpMask(),
+                        A.Rotate(limit=180.0),
+                        A.RandomScale(scale_limit=0.2),
+                        A.Affine(shear=(-45, 45)),
+                        A.Affine(translate_percent=0.2),
+                        A.Resize(height=img_size, width=img_size),
+                        ToTensorV2()
+                    ]),
+        'val': A.Compose([
+                A.Resize(height=img_size, width=img_size),
+                ToTensorV2()
         ])
     }
     return img_aug
@@ -35,9 +42,10 @@ class APTOSDataset(Dataset):
     def __getitem__(self, index):
         label = self.labels[index]
         path = self.images[index]
-        img = Image.open(path)
+        img = cv2.imread(path)
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         if self.augmentation is not None:
-            img = self.augmentation(img)
+            img = self.augmentation(image=img)["image"]
         return img, label
 
     def __len__(self):
@@ -62,5 +70,3 @@ def get_dataloaders(train_df_path, val_df_path, img_size, batch_size):
                                               drop_last=False
                                              )
     return train_loader, val_loader
-
-from pytorch_grad_cam import GradCAM

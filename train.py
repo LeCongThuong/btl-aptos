@@ -17,11 +17,11 @@ def train_one_epoch(train_loader, model, optimizer, criterion_fn, epoch_idx, wri
     num_steps_in_epoch = len(train_loader)
     t_loader = tqdm(train_loader, total=num_steps_in_epoch)
     for b_idx, (imgs, labels) in enumerate(t_loader):
-        imgs = imgs.cuda()
-        labels = labels.cuda()
+        imgs = imgs.to("cuda", dtype=torch.float)
+        labels = labels.to("cuda", dtype=torch.float)
 
         optimizer.zero_grad()
-        pred = model(imgs)
+        pred = model(imgs).squeeze()
 
         # one_hot_labels = torch.nn.functional.one_hot(labels, num_classes=5)
         loss = criterion_fn(pred, labels)
@@ -41,10 +41,10 @@ def validate(val_loader, model, criterion_fn):
         t_loader = tqdm(val_loader, total=len(val_loader))
         for b_idx, data in enumerate(t_loader):
             imgs, labels = data
-            imgs = imgs.cuda()
-            labels = labels.cuda()
+            imgs = imgs.to("cuda", dtype=torch.float)
+            labels = labels.to("cuda", dtype=torch.float)
 
-            pred = model(imgs)
+            pred = model(imgs).squeeze()
             # one_hot_labels = torch.nn.functional.one_hot(labels, num_classes=5)
             loss = criterion_fn(pred, labels)
             loss_tracker.update(loss.item())
@@ -74,6 +74,7 @@ def run():
             writer.add_scalar('loss/val', avg_val_loss, epoch_idx)
             if avg_val_loss < best_loss:
                 save_checkpoint(Config.checkpoint_dir, 'best_model', model, optimizer, scheduler, epoch_idx)
+                best_loss = avg_val_loss
         save_checkpoint(Config.checkpoint_dir, f'{epoch_idx}', model, optimizer, scheduler, epoch_idx)
 
 
