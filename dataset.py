@@ -1,9 +1,6 @@
 import torch
 from torch.utils.data import Dataset
-from PIL import Image
-import torchvision.transforms as transforms
 import pandas as pd
-import numpy as np
 import albumentations as A
 from albumentations.pytorch import ToTensorV2
 import cv2
